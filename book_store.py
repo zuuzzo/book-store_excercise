@@ -1,33 +1,22 @@
+from collections import Counter
+
+PER_BOOK = 800.00
+PER_GROUP = {
+    1: 1 * PER_BOOK * 1.00,
+    2: 2 * PER_BOOK * 0.95,
+    3: 3 * PER_BOOK * 0.90,
+    4: 4 * PER_BOOK * 0.80,
+    5: 5 * PER_BOOK * 0.75,
+}
+
 def total(basket):
-    book_counts = [0] * 5
-    for book in basket:
-        book_counts[book - 1] += 1
-
-    num_books = sum(book_counts)
-    unique_books = sum(1 for count in book_counts if count > 0)
-
-    prices = [800, 1520, 2160, 2560, 3000]
-
-    total_cost = 0
-    while num_books > 0:
-        # Determine the maximum number of different books that can be purchased in this iteration
-        max_books = min(max(book_counts), 4, unique_books)
-
-        # Calculate the cost of purchasing this many books
-        group_cost = prices[max_books - 1] * max_books
-
-        # Subtract the purchased books from book_counts and num_books
-        for i in range(len(book_counts)):
-            if book_counts[i] >= max_books:
-                book_counts[i] -= max_books
-                num_books -= max_books
-            else:
-                num_books -= book_counts[i]
-                book_counts[i] = 0
-            if book_counts[i] > 0:
-                unique_books += 1
-
-        # Add the cost of this group of books to the total cost
-        total_cost += group_cost
-
-    return total_cost
+    if not basket:
+        return 0
+    
+    basket_counts = Counter(basket)
+    basket_set = set(basket)
+    
+    group_price = sum(PER_BOOK * (1 - (i-1)*0.05) * min(basket_counts[b], i) for i in range(2,6) for b in basket_set)
+    single_price = len(basket) * PER_BOOK
+    
+    return min(group_price, single_price)
