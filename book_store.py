@@ -9,14 +9,16 @@ PER_GROUP = {
     5: 5 * PER_BOOK * 0.75,
 }
 
+
+def _total(basket):
+    basket_counts = Counter(basket)
+    basket_set = set(basket)
+    group_price = sum(PER_BOOK * (1 - (i-1)*0.05) * min(basket_counts[b], i) for i in range(2, 6) for b in basket_set)
+    single_price = len(basket) * PER_BOOK
+    return min(group_price, single_price)
+
+
 def total(basket):
     if not basket:
         return 0
-    
-    basket_counts = Counter(basket)
-    basket_set = set(basket)
-    
-    group_price = sum(PER_BOOK * (1 - (i-1)*0.05) * min(basket_counts[b], i) for i in range(2,6) for b in basket_set)
-    single_price = len(basket) * PER_BOOK
-    
-    return min(group_price, single_price)
+    return _total(sorted(basket))
