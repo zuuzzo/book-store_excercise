@@ -1,21 +1,33 @@
 def total(basket):
-    BOOK_PRICE = 800
-    DISCOUNT_RATES = {1: 0, 2: 0.05, 3: 0.10, 4: 0.20, 5: 0.25}
-    costs = {}
+    book_counts = [0] * 5
     for book in basket:
-        if book not in costs:
-            costs[book] = 0
-        costs[book] += 1
+        book_counts[book - 1] += 1
+
+    num_books = sum(book_counts)
+    unique_books = sum(1 for count in book_counts if count > 0)
+
+    prices = [800, 1520, 2160, 2560, 3000]
 
     total_cost = 0
-    while costs:
-        unique_books = len(costs)
-        group_cost = unique_books * BOOK_PRICE * (1 - DISCOUNT_RATES[unique_books])
-        total_cost += group_cost
+    while num_books > 0:
+        # Determine the maximum number of different books that can be purchased in this iteration
+        max_books = min(max(book_counts), 4, unique_books)
 
-        for book in list(costs.keys()):
-            costs[book] -= 1
-            if costs[book] == 0:
-                del costs[book]
+        # Calculate the cost of purchasing this many books
+        group_cost = prices[max_books - 1] * max_books
+
+        # Subtract the purchased books from book_counts and num_books
+        for i in range(len(book_counts)):
+            if book_counts[i] >= max_books:
+                book_counts[i] -= max_books
+                num_books -= max_books
+            else:
+                num_books -= book_counts[i]
+                book_counts[i] = 0
+            if book_counts[i] > 0:
+                unique_books += 1
+
+        # Add the cost of this group of books to the total cost
+        total_cost += group_cost
 
     return total_cost
